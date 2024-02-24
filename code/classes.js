@@ -51,4 +51,48 @@ export class Card {
     get() {
         return([this.value, this.suit]);
     }
+
+    isEqual(card) {
+        if (this.value == card.value || this.suit == card.suit) {
+            return(true)
+        }
+        return(false)
+    }
 }
+
+export class Hand {
+    constructor(position) {
+        this.cards = [];
+        this.position = position
+    }
+
+    get() {
+        return(this.cards)
+    }
+
+    sort() {
+        var values = []
+        for (var i = 0; i < this.cards.length; i++) {
+            const card = this.cards[i]
+            values.push(card.value)
+        }
+        const dsu = (arr1, arr2) => arr1
+            .map((item, index) => [arr2[index], item]) // add the args to sort by
+            .sort(([arg1], [arg2]) => arg2 - arg1) // sort by the args
+            .map(([, item]) => item); // extract the sorted items
+        this.cards = dsu(this.cards, values);
+    }
+
+    discard(card) {
+        const index = this.cards.indexOf(card);
+        if (index > -1) { // only splice array when item is found
+            this.cards.splice(index, 1); // 2nd parameter means remove one item only
+            return(card)
+        }
+        console.log("ERROR: the wanted card to discard isn't in the hand");
+    }
+
+    draw(card) {
+        this.cards.push(card)
+    }
+} 
