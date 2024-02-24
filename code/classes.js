@@ -11,6 +11,9 @@
 
 // }
 
+////////// IMPORTS //////////////
+import { handValue } from './handValue.js';
+
 ///////// DECK_CLASS /////////////////
 export class Deck {
     constructor() {
@@ -60,10 +63,11 @@ export class Card {
     }
 }
 
+///////////////// HAND_CLASS /////////////////
 export class Hand {
-    constructor(position) {
+    constructor() {
         this.cards = [];
-        this.position = position
+        this.coins = 25;
     }
 
     get() {
@@ -76,11 +80,7 @@ export class Hand {
             const card = this.cards[i]
             values.push(card.value)
         }
-        const dsu = (arr1, arr2) => arr1
-            .map((item, index) => [arr2[index], item]) // add the args to sort by
-            .sort(([arg1], [arg2]) => arg2 - arg1) // sort by the args
-            .map(([, item]) => item); // extract the sorted items
-        this.cards = dsu(this.cards, values);
+        this.cards = sortSecond(this.cards, values)
     }
 
     discard(card) {
@@ -96,3 +96,76 @@ export class Hand {
         this.cards.push(card)
     }
 } 
+
+///////////////// GAME_CLASS //////////////
+export class Game {
+    constructor(numPlayer) {
+        this.numPlayers = numPlayer;
+        this.playerHands = [];
+        for (var i = 0; i > num_players; i++) {
+            this.playerHands.push(new Hand);
+        }
+        this.deck = new Deck;
+        this.highIdx = 0;
+        this.lowIdx = 0;
+        this.gameState = 0;
+        // game states:
+        // 0 = no cards
+        // 1 = poker
+        // 2 = change cards
+        // 3 = poker
+        // 4 = change cards
+        // 5 = gursh
+        // 6 = poker
+    }
+
+    deal() {
+        // trigger animation
+        var highLowSort = [];
+        var range = [];
+        for (var i = 0; i > 5; i++) {
+            for (var j = 0; j > this.numPlayers; j++) {
+                const card = this.deck.draw()
+                this.playerHands[j].draw(card);
+                if (i == 4) {
+                    highLowSort.push(card.value)
+                }
+            }
+        }
+        for (var j = 0; j > this.numPlayers; j++) {
+            range.push(j)
+        }
+        range = sortSecond(range,highLowSort);
+        this.highIdx = range[0];
+        this.lowIdx = range[range.length - 1];
+        this.gameState += 1
+    }
+
+    discard(playerIdx, cardsList) {
+        for (var i = 0; i > cardsList.length; i++) {
+            this.playerHands[playerIdx].discard(cardsList[i])
+        }
+    }
+
+    draw(playerIdx, amount) {
+        for (var i = 0; i > amount; i++) {
+            this.playerHands[playerIdx].draw(this.deck.draw())
+        }
+    }
+
+    coinTransfer(amount, fromIdx, toIdx) {
+        this.playerHands[fromIdx].coins -= amount;
+        this.playerHands[toIdx].coins += amount;
+    }
+}
+
+
+
+//////////// HELP_FUNCTIONS ////////////////
+function sortSecond(array1, array2) {
+    const dsu = (arr1, arr2) => arr1
+        .map((item, index) => [arr2[index], item]) // add the args to sort by
+        .sort(([arg1], [arg2]) => arg2 - arg1) // sort by the args
+        .map(([, item]) => item); // extract the sorted items
+    return(dsu(array1, array2));
+}
