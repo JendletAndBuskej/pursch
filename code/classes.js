@@ -12,7 +12,7 @@
 // }
 
 ////////// IMPORTS //////////////
-import { handValue } from './handValue.js';
+import { handValue } from './Backend/handValue.js';
 
 ///////// DECK_CLASS /////////////////
 export class Deck {
@@ -68,6 +68,8 @@ export class Hand {
     constructor() {
         this.cards = [];
         this.coins = 25;
+        this.rotation = 0;  //frontend
+        this.position = []; //frontend
     }
 
     get() {
@@ -94,6 +96,10 @@ export class Hand {
 
     draw(card) {
         this.cards.push(card)
+    }
+
+    display() {
+
     }
 } 
 

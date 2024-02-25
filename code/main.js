@@ -1,6 +1,6 @@
 /////////// Imports ////////////
 import { Deck, Card, Hand } from './classes.js';
-import { handValue } from './handValue.js';
+import { handValue } from './Backend/handValue.js';
 
 //////////// Main ///////////////
 const canvas = document.querySelector('canvas')
