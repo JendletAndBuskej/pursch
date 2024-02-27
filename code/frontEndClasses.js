@@ -137,28 +137,21 @@ export class PlayArea {
             this.noiseX = this.calculateNoise((1/20)*this.position[2],+(1/20)*this.position[2]);
             this.noiseY = this.calculateNoise((1/10)*this.position[3],+(1/10)*this.position[3]);    
         }
-        this.noiseRotation = this.calculateNoise(25,25);
+        this.noiseRotation = this.calculateNoise(10,10);
     }
 
     displaySplit(c, images) {
         for (var i=0; i<this.cards.length; i++) {
             const card = this.cards[i][0];
             const splitFactor = 0.90;
-            if (this.rotation ==0) {
+            if (this.rotation ==0 || this.rotation ==180) {
                 const term1X = splitFactor*this.position[0]
                 const factor1X = (i+1/2)/this.cards.length
                 const factor2X = (this.position[2]+this.position[0]*2*(1-splitFactor))
                 card.x = term1X + factor1X*factor2X;
                 card.y = this.position[1] + this.position[3]/2
             }
-            if (this.rotation == 90) {
-                const term1Y = splitFactor*this.position[1]
-                const factor1Y = (i+1/2)/this.cards.length
-                const factor2Y = (this.position[3]+this.position[1]*2*(1-splitFactor))
-                card.y = term1Y + factor1Y*factor2Y;
-                card.x = this.position[0] + this.position[2]/2
-            }
-            if (this.rotation == -90 || this.rotation == 270) {
+            if (this.rotation == 90 || this.rotation == -90 || this.rotation == 270) {
                 const term1Y = splitFactor*this.position[1]
                 const factor1Y = (i+1/2)/this.cards.length
                 const factor2Y = (this.position[3]+this.position[1]*2*(1-splitFactor))
@@ -202,7 +195,7 @@ export class PlayArea {
                     const term1Y = this.position[1] + this.noiseY[i];
                     const term2Y = (j + 1/2)*this.position[3]/(this.cards[i].length);
                     card.y = term1Y + term2Y;
-                    card.x = this.position[1] + this.position[3]/2 + this.noiseY[i];
+                    card.x = this.position[0] + this.position[2]/2 + this.noiseY[i];
                 }
                 if (this.rotation == 180) {
                     const term1X = this.position[0] + this.noiseX[i];
@@ -218,6 +211,7 @@ export class PlayArea {
     }
 }
 
+//////////////// Coins and Coin Stack ///////////////
 export class Coins {
     constructor(amount, x, y) {
         this.x = x;
@@ -237,13 +231,25 @@ export class Coins {
     }
 }
 
+
+//////////////// PLAYER ////////////////////////////////
 export class Player {
-    constructor(hand, canvas, position) {
-        this.hand = hand;
-        const playAreaPos = relativePos(45,60,10,15, canvas);
-        this.playArea = new PlayArea(hand, playAreaPos, 0.002);
+    constructor(seatIdx, canvas) {
+        // constant positions of players
+        const myPosition = relativePos(30,75,40,25, canvas);
+        const westPosition = relativePos(0,30,7,40, canvas)
+        const northPosition = [canvas.width/2 - westPosition[3]/2,westPosition[0], westPosition[3], westPosition[2]];
+        const eastPosition = [canvas.width - westPosition[2], westPosition[1], westPosition[2], westPosition[3]]
+        const position = [myPosition, westPosition, northPosition, eastPosition];
+        const myPlayPosition = relativePos(45,60,10,15, canvas);
+        const westPlayPosition = [1.2*westPosition[2],canvas.height/2-myPlayPosition[2]/2,myPlayPosition[3],myPlayPosition[2]];
+        const northPlayPosition = [canvas.width/2 - westPlayPosition[3]/2,1.2*northPosition[3], westPlayPosition[3], westPlayPosition[2]];
+        const eastPlayPosition = [eastPosition[0]-1.2*westPlayPosition[2], westPlayPosition[1], westPlayPosition[2], westPlayPosition[3]];
+        const playPos = [myPlayPosition, westPlayPosition, northPlayPosition, eastPlayPosition];
+        // declarations
+        this.hand = new Hand([], position[seatIdx], 90*seatIdx, 0.002);
+        this.playArea = new PlayArea(this.hand, playPos[seatIdx], 0.002);
         this.coinStack = coinStack;
-        this.playArea = playArea;
         
     }
 }

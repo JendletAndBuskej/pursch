@@ -31,15 +31,22 @@ myPlayArea.cards = [[card1],[card2,card2],[card3]];
 
 const westPosition = relativePos(0,30,7,40, canvas)
 const westHand = new Hand(cards, westPosition, 90, 0.002)
-const westPlayPosition = [1.3*westPosition[2],canvas.height/2-myPlayPosition[2]/2,myPlayPosition[3],myPlayPosition[2]]
+const westPlayPosition = [1.2*westPosition[2],canvas.height/2-myPlayPosition[2]/2,myPlayPosition[3],myPlayPosition[2]]
 const westPlayArea = new PlayArea(westHand, westPlayPosition, 0.002)
 westPlayArea.cards = [[card1],[card2,card2],[card3]];
 
-
-const northPosition = [canvas.width/2 - westPosition[1]/2,westPosition[0], westPosition[3], westPosition[2]]
-const eastPosition = [canvas.width - westPosition[2], westPosition[1], westPosition[2], westPosition[3]]
+const northPosition = [canvas.width/2 - westPosition[3]/2,westPosition[0], westPosition[3], westPosition[2]]
 const northHand = new Hand(cards, northPosition, 180, 0.002)
+const northPlayPosition = [canvas.width/2 - westPlayPosition[3]/2,1.2*northPosition[3], westPlayPosition[3], westPlayPosition[2]]
+const northPlayArea = new PlayArea(northHand, northPlayPosition, 0.002)
+northPlayArea.cards = [[card1],[card2,card2],[card3]];
+
+const eastPosition = [canvas.width - westPosition[2], westPosition[1], westPosition[2], westPosition[3]]
 const eastHand = new Hand(cards, eastPosition, -90, 0.002)
+const eastPlayPosition = [eastPosition[0]-1.2*westPlayPosition[2], westPlayPosition[1], westPlayPosition[2], westPlayPosition[3]]
+const eastPlayArea = new PlayArea(eastHand, eastPlayPosition, 0.002)
+eastPlayArea.cards = [[card1],[card2,card2],[card3]];
+
 
 //////// FUNCTIONS ///////////////
 
@@ -52,8 +59,9 @@ function animate() {
     westHand.display(c, images)
     northHand.display(c, images)
     eastHand.display(c, images)
-    westPlayArea.testDraw(c)
-    westPlayArea.displaySplit(c, images)
+    westPlayArea.displayStacked(c, images)
+    eastPlayArea.displayStacked(c, images)
+    northPlayArea.displayStacked(c, images)
 }
 
 // MOUSE
