@@ -53,6 +53,9 @@ export class Hand {
         this.cards = cards;
         this.rotation = rotation;
         this.scale = scale*position[3];
+        if (rotation == 90 || rotation == -90 || rotation == 270) {
+            this.scale = scale*position[2];
+        }
         this.cardHover = []
     }
 
@@ -79,16 +82,42 @@ export class Hand {
     display(c, images) {
         for (var i=0; i<this.cards.length; i++) {
             const card = this.cards[i]
-            card.x = this.position[0] + (i+1/2)*this.position[2]/this.cards.length
-            card.y = this.position[1] + this.position[3]/2
-            card.scale = this.scale
-            const middleX = this.position[0] + this.position[2]/2;
-            const scaleFactor = (card.x - middleX)/middleX;
-            card.angle = this.rotation + 20*scaleFactor;
-            card.y += 100*scaleFactor*scaleFactor;
-            if (this.cardHover[i]) {
-                card.y -= 0.13*this.position[3]
+            if (this.rotation ==0) {
+                card.x = this.position[0] + (i+1/2)*this.position[2]/this.cards.length;
+                card.y = this.position[1] + this.position[3]/2;
+                const middleX = this.position[0] + this.position[2]/2;
+                const scaleFactor = (card.x - middleX)/middleX;
+                card.angle = this.rotation + 20*scaleFactor;
+                card.y += 100*scaleFactor*scaleFactor;
+                if (this.cardHover[i]) {
+                    card.y -= 0.13*this.position[3]
+                }
             }
+            if (this.rotation == 180) {
+                card.x = this.position[0] + (i+1/2)*this.position[2]/this.cards.length;
+                card.y = this.position[1] + this.position[3]/2;
+                const middleX = this.position[0] + this.position[2]/2;
+                const scaleFactor = (card.x - middleX)/middleX;
+                card.angle = this.rotation - 20*scaleFactor;
+                card.y -= 100*scaleFactor*scaleFactor;
+            }
+            if (this.rotation == -90 || this.rotation == 270) {
+                card.y = this.position[1] + (i+1/2)*this.position[3]/this.cards.length;
+                card.x = this.position[0] + this.position[2]/2;
+                const middleY = this.position[1] + this.position[3]/2;
+                const scaleFactor = (card.y - middleY)/middleY;
+                card.angle = this.rotation - 20*scaleFactor;
+                card.x += 100*scaleFactor*scaleFactor;
+            }
+            if (this.rotation == 90) {
+                card.y = this.position[1] + (i+1/2)*this.position[3]/this.cards.length;
+                card.x = this.position[0] + this.position[2]/2;
+                const middleY = this.position[1] + this.position[3]/2;
+                const scaleFactor = (card.y - middleY)/middleY;
+                card.angle = this.rotation + 20*scaleFactor;
+                card.x -= 100*scaleFactor*scaleFactor;
+            }
+            card.scale = this.scale
             card.display(c, images);
         }
     }
@@ -99,11 +128,15 @@ export class PlayArea {
     constructor(hand, position, scale) {
         this.cards = [];
         this.rotation = hand.rotation;
-        const middleX = hand.position[0] + hand.position[3]/2;
         this.position = position;
-        this.scale = scale*this.position[3];
-        this.noiseX = this.calculateNoise((1/20)*this.position[2],+(1/20)*this.position[2]);
-        this.noiseY = this.calculateNoise((1/10)*this.position[3],+(1/10)*this.position[3]);
+        this.scale = scale*this.position[2];
+        this.noiseX = this.calculateNoise((1/10)*this.position[2],+(1/10)*this.position[2]);
+        this.noiseY = this.calculateNoise((1/20)*this.position[3],+(1/20)*this.position[3]);
+        if (this.rotation == 0 || this.rotation == 180)  {
+            this.scale = scale*this.position[3];
+            this.noiseX = this.calculateNoise((1/20)*this.position[2],+(1/20)*this.position[2]);
+            this.noiseY = this.calculateNoise((1/10)*this.position[3],+(1/10)*this.position[3]);    
+        }
         this.noiseRotation = this.calculateNoise(25,25);
     }
 
@@ -111,11 +144,27 @@ export class PlayArea {
         for (var i=0; i<this.cards.length; i++) {
             const card = this.cards[i][0];
             const splitFactor = 0.90;
-            const term1X = splitFactor*this.position[0]
-            const factor1X = (i+1/2)/this.cards.length
-            const factor2X = (this.position[2]+this.position[0]*2*(1-splitFactor))
-            card.x = term1X + factor1X*factor2X;
-            card.y = this.position[1] + this.position[3]/2
+            if (this.rotation ==0) {
+                const term1X = splitFactor*this.position[0]
+                const factor1X = (i+1/2)/this.cards.length
+                const factor2X = (this.position[2]+this.position[0]*2*(1-splitFactor))
+                card.x = term1X + factor1X*factor2X;
+                card.y = this.position[1] + this.position[3]/2
+            }
+            if (this.rotation == 90) {
+                const term1Y = splitFactor*this.position[1]
+                const factor1Y = (i+1/2)/this.cards.length
+                const factor2Y = (this.position[3]+this.position[1]*2*(1-splitFactor))
+                card.y = term1Y + factor1Y*factor2Y;
+                card.x = this.position[0] + this.position[2]/2
+            }
+            if (this.rotation == -90 || this.rotation == 270) {
+                const term1Y = splitFactor*this.position[1]
+                const factor1Y = (i+1/2)/this.cards.length
+                const factor2Y = (this.position[3]+this.position[1]*2*(1-splitFactor))
+                card.y = term1Y + factor1Y*factor2Y;
+                card.x = this.position[0] + this.position[2]/2
+            }
             card.scale = this.scale;
             card.angle = this.rotation;
             card.display(c, images);
@@ -129,15 +178,39 @@ export class PlayArea {
         return(noise);
     }
 
+    testDraw(c) {
+        c.fillRect(this.position[0], this.position[1], this.position[2],this.position[3])
+    }
+
     displayStacked(c, images) {
         for (var i=0; i<this.cards.length; i++) {
             for (var j=0; j<this.cards[i].length; j++) {
                 const card = this.cards[i][j];
-                const term1X = this.position[0] + this.noiseX[i];
-                const term2X = (j + 1/2)*this.position[2]/(this.cards[i].length);
-                card.x = term1X + term2X;
-                card.y = this.position[1] + this.position[3]/2 + this.noiseY[i];
-                card.angle = this.noiseRotation[i];
+                if (this.rotation == 0) {
+                    const term1X = this.position[0] + this.noiseX[i];
+                    const term2X = (j + 1/2)*this.position[2]/(this.cards[i].length);
+                    card.x = term1X + term2X;
+                    card.y = this.position[1] + this.position[3]/2 + this.noiseY[i];
+                }
+                if (this.rotation == 90) {
+                    const term1Y = this.position[1] + this.noiseY[i];
+                    const term2Y = (j + 1/2)*this.position[3]/(this.cards[i].length);
+                    card.y = term1Y + term2Y;
+                    card.x = this.position[0] + this.position[2]/2 + this.noiseY[i];
+                }
+                if (this.rotation == -90 || this.rotation == 270) {
+                    const term1Y = this.position[1] + this.noiseY[i];
+                    const term2Y = (j + 1/2)*this.position[3]/(this.cards[i].length);
+                    card.y = term1Y + term2Y;
+                    card.x = this.position[1] + this.position[3]/2 + this.noiseY[i];
+                }
+                if (this.rotation == 180) {
+                    const term1X = this.position[0] + this.noiseX[i];
+                    const term2X = (j + 1/2)*this.position[2]/(this.cards[i].length);
+                    card.x = term1X + term2X;
+                    card.y = this.position[1] + this.position[3]/2 + this.noiseY[i];
+                }
+                card.angle = this.rotation + this.noiseRotation[i];
                 card.scale = this.scale;
                 card.display(c, images);
             }
@@ -165,7 +238,7 @@ export class Coins {
 }
 
 export class Player {
-    constructor(hand, canvas) {
+    constructor(hand, canvas, position) {
         this.hand = hand;
         const playAreaPos = relativePos(45,60,10,15, canvas);
         this.playArea = new PlayArea(hand, playAreaPos, 0.002);
