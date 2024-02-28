@@ -10,13 +10,17 @@ export function relativePos(x, y, width, height, parent) {
     return([realX, realY, realWidth, realHeight])
 }
 
-export function predeclare() {
-    var images = [[],[],[],[]]
+export function predeclare(extraImgAmount) {
+    var images = [[],[],[],[],[]]
     for (var i=0; i<4; i++) {
         for (var j=0; j<13; j++) {
             images[i][j] = new Image();
         }
     }
+    for (var j=0; j<extraImgAmount; j++) {
+        images[4][j] = new Image();
+    }
+            
     return(images)
 }
 
@@ -29,5 +33,8 @@ export function preload(images) {
             images[i][j].src = path
         }
     }
+    images[4][0].src = '../image_files/backside_of_cards.png'
+    images[4][1].src = '../image_files/smallStack.png'
+    images[4][2].src = '../image_files/bigStack.png'
     return(images)
 }

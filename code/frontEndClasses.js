@@ -10,6 +10,10 @@ export class Card {
         this.rotation = rotation
         this.scale = scale
         this.value = value
+        this.faceDown = false;
+        if (value == 0) {
+            this.faceDown = true;
+        }
         this.suit = suit
         this.suit_index = this.get_suit_index()
     }
@@ -37,6 +41,9 @@ export class Card {
 
     display(c, images) {
         var image = images[this.suit_index][this.value - 2];
+        if (this.faceDown) {
+            var image = images[4][0];
+        }
         c.save();
         c.translate(this.x, this.y);
         c.rotate(Math.PI / 180 * this.angle);
@@ -213,10 +220,10 @@ export class PlayArea {
 
 //////////////// Coins and Coin Stack ///////////////
 export class Coins {
-    constructor(amount, x, y) {
+    constructor(amount, x, y, scale) {
         this.x = x;
         this.y = y;
-        this.scale;
+        this.scale = scale;
         this.isBigStack = 0;
         if (amount >= 7) {
             this.isBigStack = 1;
@@ -224,17 +231,46 @@ export class Coins {
     }
     
     display(c, images) {
-        var image = images[this.isBigStack];
+        const image = images[4][this.isBigStack + 1];
+        c.save();
+        c.translate(this.x, this.y);
+        c.rotate(Math.PI / 180 * this.angle);
         const drawX = this.scale*(-image.width / 2);
         const drawY = this.scale*(-image.height / 2);
         c.drawImage(image, drawX, drawY, this.scale*image.width, this.scale*image.height);
+        c.restore();
     }
 }
 
+export class CoinStack {
+    constructor(seatIdx, handPos, canvas) {
+        this.amount = 25;
+        this.scale = 0.02;
+        if (seatIdx == 0) {
+            this.position = [canvas.width - handPos[0], handPos[1]]
+        }
+        if (seatIdx == 2) {
+            this.position = [handPos[0] - 80, handPos[1] + handPos[3] + 30]
+        }
+        if (seatIdx == 1) {
+            this.position = [handPos[0] + handPos[2], canvas.height - handPos[1] + 30]
+        }
+        if (seatIdx == 3) {
+            this.position = [handPos[0] - 80, handPos[3] - 80]
+        }
+    }
+
+    display(c, images) {
+        c.font = "30px serif";
+        c.fillText(this.amount.toString(),this.position[0],this.position[1]);
+        const coin = new Coins(1, this.position[0] + 60, this.position[1] - 10, 0.04)
+        coin.display(c, images)
+    }
+}
 
 //////////////// PLAYER ////////////////////////////////
 export class Player {
-    constructor(seatIdx, canvas) {
+    constructor(seatIdx, canvas, name) {
         // constant positions of players
         const myPosition = relativePos(30,75,40,25, canvas);
         const westPosition = relativePos(0,30,7,40, canvas)
@@ -249,7 +285,18 @@ export class Player {
         // declarations
         this.hand = new Hand([], position[seatIdx], 90*seatIdx, 0.002);
         this.playArea = new PlayArea(this.hand, playPos[seatIdx], 0.002);
-        this.coinStack = coinStack;
-        
+        this.coinStack = new CoinStack(seatIdx, position[seatIdx], canvas);
+        this.name = name;
+    }
+
+    display(c, images, isGame) {
+        this.coinStack.display(c,images)
+        if (isGame) {
+            this.playArea.displayStacked(c, images);
+        }
+        if (isGame == false) {
+            this.playArea.displaySplit(c, images);
+        }
+        this.hand.display(c, images)
     }
 }
