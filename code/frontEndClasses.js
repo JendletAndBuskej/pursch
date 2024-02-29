@@ -16,6 +16,9 @@ export class Card {
         }
         this.suit = suit;
         this.suit_index = this.get_suit_index();
+        // animationsParameters
+        this.animationCounter = 0;
+        this.momentum = 0;
     }
 
     get_suit_index() {
@@ -83,18 +86,32 @@ export class Hand {
     }
 
     draw(c, images, card) {
-        const animationLen = 15;
-        card.x = 0;
-        card.y = 0;
-        card.angle = 15;
-        const momentum = Math.random()*(1080/animationLen);
-        const targetX = this.position[0] + this.position[2]/2;
-        const targetY = this.position[1] + this.position[3]/2;
-        for (var i=0; i>animationLen; i++) {
-            card.display(c,images);
-            card.x += targetX/animationLen;
+        const animationLen = 20;
+        const speedFunction = [2.5, 1.75, 1.44 , 1.24, 1, 0.95, 0.85, 0.77, 0.7,
+                               0.63, 0.57, 0.5, 0.46, 0.41, 0.37, 0.33, 0.23,
+                               0.26, 0.22, 0.19];
+        //const sum = speedFunction.reduce((partialSum, a) => partialSum + a, 0);
+        const sum = 15.37;
+        if (card.animationCounter < animationLen) {
+            if (card.animationCounter == 0) {
+                card.x = 0;
+                card.y = 0;
+                card.angle = 45;
+                card.momentum = Math.random()*(1080/animationLen);
+            }
+            card.faceDown = true;
+            const targetX = this.position[0] + this.position[2]/2;
+            const targetY = this.position[1] + this.position[3]/2;
+            card.x += speedFunction[card.animationCounter]*targetX/sum;
             card.y += targetY/animationLen;
-            card.angle += momentum;
+            card.display(c, images)
+            card.angle += card.momentum;
+            card.animationCounter += 1
+        }
+        if (card.animationCounter == animationLen) {
+            card.faceDown = false;
+            this.cards.push(card);
+            card.animationCounter += 1
         }
     }
 
@@ -187,6 +204,35 @@ export class PlayArea {
         }
     }
 
+    draw(c, images, card) {
+        const animationLen = 20;
+        const speedFunction = [2.5, 1.75, 1.44 , 1.24, 1, 0.95, 0.85, 0.77, 0.7,
+                               0.63, 0.57, 0.5, 0.46, 0.41, 0.37, 0.33, 0.23,
+                               0.26, 0.22, 0.19];
+        const sum = 15.37;
+        if (card.animationCounter < animationLen) {
+            if (card.animationCounter == 0) {
+                card.x = 0;
+                card.y = 0;
+                card.angle = 45;
+                card.momentum = Math.random()*(1080/animationLen);
+            }
+            card.faceDown = false;
+            const targetX = this.position[0] + this.position[2]/2;
+            const targetY = this.position[1] + this.position[3]/2;
+            card.x += speedFunction[card.animationCounter]*targetX/sum;
+            card.y += targetY/animationLen;
+            card.display(c, images)
+            card.angle += card.momentum/10;
+            card.animationCounter += 1
+        }
+        if (card.animationCounter == animationLen) {
+            card.faceDown = false;
+            this.cards.push([card]);
+            card.animationCounter += 1
+        }
+    }
+
     calculateNoise(from, to) {
         const noise = [];
         for (var i=0; i<5; i++)
@@ -244,6 +290,8 @@ export class Coins {
         if (amount >= 7) {
             this.isBigStack = 1;
         }
+        // animationsParameters
+        this.animationCounter = 0;
     }
     
     display(c, images) {
@@ -281,6 +329,27 @@ export class CoinStack {
         c.fillText(this.amount.toString(),this.position[0],this.position[1]);
         const coin = new Coins(1, this.position[0] + 60, this.position[1] - 10, 0.04);
         coin.display(c, images);
+    }
+
+    getCoins(c, images, coins, fromCoinStack) {
+        const animationLen = 20;
+        if (coins.animationCounter < animationLen) {
+            if (coins.animationCounter == 0) {
+                coins.x = fromCoinStack.x;
+                coins.y = fromCoinStack.y;
+            }
+            const targetX = this.x - coins.x;
+            const targetY = this.y - coins.y;
+            coins.x += coins.animationCounter*targetX/animationLen;
+            coins.y += coins.animationCounter*targetY/animationLen;
+            coins.display(c, images)
+            coins.animationCounter += 1
+        }
+        if (coins.animationCounter == animationLen) {
+            coins.faceDown = false;
+            this.cards.push([coins]);
+            coins.animationCounter += 1
+        }
     }
 }
 

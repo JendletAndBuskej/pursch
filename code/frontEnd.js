@@ -34,12 +34,12 @@ west.hand.cards = cardsDown;
 west.playArea.cards = playAreaCards
 const north = new Player(2, canvas, "boss");
 north.hand.cards = cardsDown;
-north.playArea.cards = playAreaCards
+north.playArea.cards = []
 const south = new Player(3, canvas, "boss");
 south.hand.cards = cardsDown;
 south.playArea.cards = playAreaCards
 
-
+const cleanCard = new Card(0,0,0,0.2,3,'clubs')
 
 
 
@@ -54,7 +54,7 @@ function animate() {
     north.display(c,images,false)
     west.display(c,images,false)
     south.display(c,images,true)
-    myPlayer.hand.draw(c,images, cardDown)
+    west.playArea.draw(c, images, cleanCard)
 }
 
 // MOUSE
