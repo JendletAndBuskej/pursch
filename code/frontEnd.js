@@ -39,7 +39,7 @@ const south = new Player(3, canvas, "boss");
 south.hand.cards = cardsDown;
 south.playArea.cards = playAreaCards
 
-const cleanCard = new Card(0,0,0,0.2,3,'clubs')
+const cleanCard = new Card(0,0,0,0.6,3,'clubs')
 
 
 
@@ -54,7 +54,7 @@ function animate() {
     north.display(c,images,false)
     west.display(c,images,false)
     south.display(c,images,true)
-    west.playArea.draw(c, images, cleanCard)
+    myPlayer.hand.draw(c, images, cleanCard)
 }
 
 // MOUSE

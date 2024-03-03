@@ -103,26 +103,237 @@ export class Hand {
     }
 } 
 
+////////////////// Gamestates classes /////////////////
+class initial {
+    constructor() {
+        this.stateInformation = {}
+    }
+}
+
 ///////////////// GAME_CLASS //////////////
 export class Game {
     constructor(numPlayer) {
         this.numPlayers = numPlayer;
         this.playerHands = [];
+        this.PlayersTurn = 0;
+        this.gameId = int(math.random()*1000)
+        this.playerNames = []
         for (var i = 0; i > num_players; i++) {
             this.playerHands.push(new Hand);
         }
         this.deck = new Deck;
         this.highIdx = 0;
         this.lowIdx = 0;
-        this.gameState = 0;
-        // game states:
-        // 0 = no cards
-        // 1 = poker
-        // 2 = change cards
-        // 3 = poker
-        // 4 = change cards
-        // 5 = gursh
-        // 6 = poker
+        this.gameState = "";
+        // gamestates
+        this.cardTrownAmount = 0;
+        this.isPlayerDone = [];  //true false list for more than one instance
+        this.upCard = [];
+        this.takeUpCard = [];   //takes the up card true false list
+        this.playerShownCards = {
+            "0": [],
+            "1": [],
+            "2": [],
+            "3": []
+        }
+        this.playedCardsHistory = {
+            //"0": [playerIndex,card1, card2],
+        }
+
+
+    }
+    constructJson(playerIdx) {
+        const playerCoins = []
+        for (var i=0; i<this.numPlayers; i++) {
+            playerCoins.push(this.playerHands[i].coins)
+        }
+        if (this.gameState == "initial") {
+            const cardsUp = [];
+            for (var i=0; i<this.numPlayers; i++) {
+                cardsUp.push(this.playerHands[i].cards[4])
+            }
+            const json = {
+                "gameId": this.gameId,
+                "amountOfPlayers": this.numPlayers,
+                "playerNames": this.playerNames,
+                "playerCoins": playerCoins,
+                "receivingPlayer": playerIdx,
+                "receivingHand": cards2json(this.playerHands[playerIdx].cards),
+                "PlayersTurn": this.PlayersTurn,
+                "highId": this.highIdx,
+                "lowId": this.lowIdx,
+
+                "gameState": this.gameState,
+                "stateInformation": {
+                    "cardsUp": cards2json(cardsUp),
+                    "canSlask": this.canSlask(this.playerHands[playerIdx])
+                }
+            }
+        }
+        if (this.gameState == "card change") {
+            const playersCardAmount = [];upCard
+            for (var i=0; i<this.numPlayers; i++) {
+                playersCardAmount.push(this.playerHands[i].cards.length)
+            }
+            const json = {
+                "gameId": this.gameId,
+                "amountOfPlayers": this.numPlayers,
+                "playerNames": this.playerNames,
+                "playerCoins": playerCoins,
+                "receivingPlayer": playerIdx,
+                "receivingHand": cards2json(this.playerHands[playerIdx].cards),
+                "PlayersTurn": this.PlayersTurn,
+                "highId": this.highIdx,
+                "lowId": this.lowIdx,
+                
+                "gameState": this.gameState,
+                "stateInformation": {
+                    "cardTrownAmount": this.cardTrownAmount,
+                    "playersCardAmount": playersCardAmount,
+                    "isPlayerDone": this.isPlayerDone,
+                    "oneUp": {
+                        "upCard": this.upCard,
+                        "takeUpCard": this.takeUpCard
+                    }
+                }
+            }
+        }
+        if (this.gameState == "poker") {
+            const pokerHand = this.bestWorstHand()
+            const playersCardAmount = [];upCard
+            for (var i=0; i<this.numPlayers; i++) {
+                playersCardAmount.push(this.playerHands[i].cards.length)
+            }
+            const json = {
+                "gameId": this.gameId,
+                "amountOfPlayers": this.numPlayers,
+                "playerNames": this.playerNames,
+                "playerCoins": playerCoins,
+                "receivingPlayer": playerIdx,
+                "receivingHand": cards2json(this.playerHands[playerIdx].cards),
+                "PlayersTurn": this.PlayersTurn,
+                "highId": this.highIdx,
+                "lowId": this.lowIdx,
+                
+                "gameState": this.gameState,
+                "stateInformation": {
+                    "leadingPlayer": pokerHand[0],
+                    "loosingPlayer": pokerHand[1],
+                    "CanShowMore": this.isPlayerDone,
+                    "handCoinValue": pokerHand[2],
+                    "playerShownCards": this.playerShownCards
+                },
+            }
+        }
+        if (this.gameState == "play") {
+            const json = {
+                "gameId": this.gameId,
+                "amountOfPlayers": this.numPlayers,
+                "playerNames": this.playerNames,
+                "playerCoins": playerCoins,
+                "receivingPlayer": playerIdx,
+                "receivingHand": cards2json(this.playerHands[playerIdx].cards),
+                "PlayersTurn": this.PlayersTurn,
+                "highId": this.highIdx,
+                "lowId": this.lowIdx,
+                
+                "gameState": this.gameState,
+                "stateInformation": {
+                    "cardsPlayed": this.playedCardsHistory
+                },
+            }
+        }
+        if (this.gameState == "ending") {
+            const pokerHand = this.bestWorstHand()
+            const json = {
+                "gameId": this.gameId,
+                "amountOfPlayers": this.numPlayers,
+                "playerNames": this.playerNames,
+                "playerCoins": playerCoins,
+                "receivingPlayer": playerIdx,
+                "receivingHand": cards2json(this.playerHands[playerIdx].cards),
+                "PlayersTurn": this.PlayersTurn,
+                "highId": this.highIdx,
+                "lowId": this.lowIdx,
+                
+                "gameState": this.gameState,
+                "stateInformation": {
+                    "pokerWinning": pokerHand[0],
+                    "pokerLosing": pokerHand[1],
+                    "pokerAmount": pokerHand[2],
+                    "playWinning": 3,
+                    "playLosing": 2,
+                    "playAmount": 6
+                }
+            }
+        }
+    }
+
+    calculateWinner() {
+        const lastCardPlayed = [];
+        const IdxSortedValues = [];
+        const historyLen = this.playedCardsHistory.length
+        for (var i=historyLen; i > historyLen - this.numPlayers; i--) {
+            const lastPlay = this.playedCardsHistory[toString(i)]
+            lastCardPlayed.push(lastPlay);
+            IdxSortedValues.push(lastPlay[0])
+        }
+        for (var i=0; i<lastCardPlayed; i++) {
+
+        }
+    }
+
+    bestWorstHand() {
+        const handValues = [];
+        const bigSums = [];
+        const best2worstIdx = [];
+        for (var i=0; i<this.numPlayers; i++) {
+            handValues.push(handValue(this.playerShownCards[toString(i)]));
+            best2worstIdx.push(i)
+            const bigSum = 0
+            for (var i=0; i<6; i++) {
+                if (handValues[i].length == i) {
+                    break
+                }
+                bigSum += handValue[i]*Math.pow(100,5-i);
+            }
+            bigSums.push(bigSum);
+        }
+        best2worstIdx = sortSecond(best2worstIdx, bigSums);
+        const bestAmount = handValues[best2worstIdx[0]][0];
+        const best = []
+        for (var i=0; i<best2worstIdx.length-1; i++) {
+            best.push(best2worstIdx[i])
+            current = bigSums[best2worstIdx[i]];
+            next = bigSums[best2worstIdx[i+1]];
+            if(current != next) {
+                break
+            }
+        }
+        const worst = []
+        for (var i=best2worstIdx.length-1; i>0; i--) {
+            best.push(best2worstIdx[i])
+            current = bigSums[best2worstIdx[i]];
+            previous = bigSums[best2worstIdx[i-1]];
+            if(current != previous) {
+                break
+            }
+        }
+        return([best, worst, bestAmount])
+    }
+
+    canSlask(hand) {
+        const counter = 0
+        if (this.numPlayers == 4) {
+            return(false)
+        }
+        for (var i=0; i < hand.cards.length; i++) {
+            const value = hand.cards[i].value
+            if (value > 11) {
+                return(false)
+            }
+        }
+        return(true)
     }
 
     deal() {
@@ -168,10 +379,21 @@ export class Game {
 
 
 //////////// HELP_FUNCTIONS ////////////////
-function sortSecond(array1, array2) {
+function sortSecond(array1, array2) {       //sort first array by second array
     const dsu = (arr1, arr2) => arr1
         .map((item, index) => [arr2[index], item]) // add the args to sort by
         .sort(([arg1], [arg2]) => arg2 - arg1) // sort by the args
         .map(([, item]) => item); // extract the sorted items
     return(dsu(array1, array2));
+}
+
+function cards2json(cards) {
+    const returnList = [];
+    for (var i=0; i<cards.length; i++) {
+        const cardValue = cards.value
+        const cardSuit = cards.suit
+        const stringed = toString(cardValue) + cardSuit.charAt(0)
+        returnList.push(stringed)
+    }
+    return(returnList)
 }

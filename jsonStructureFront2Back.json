@@ -1,0 +1,38 @@
+{
+    "gameId": 344,
+    "playerName": "",
+    "receivingPlayer": 2,
+    
+    "gameState": "initial",
+    "stateInformation": {
+        "slask": true
+    },
+
+    "gameState": "card change",
+    "stateInformation": {
+        "discard": ["3h","6d"], // or false if not want to discard
+        "oneUp": {
+            "choiceUp": true
+        }
+    },
+
+    "gameState": "poker",
+    "stateInformation": {
+        "showCards": ["3h","6d"] // false if check
+    },
+
+    "gameState": "pokerEnding",
+    "stateInformation": {
+        "receivedInformation": true
+    },
+
+    "gameState": "play",
+    "stateInformation": {
+        "playNow": ["8s","2d"]
+    },
+
+    "gameState": "ending",
+    "stateInformation": {
+        "receivedInformation": true 
+    }
+}

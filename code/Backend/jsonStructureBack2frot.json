@@ -1,0 +1,86 @@
+{
+    "gameId": 344,
+    "amountOfPlayers": 4,
+    "playerNames": ["","","",""],
+    "playerCoins": [23, 24, 30],
+    "receivingPlayer": 2,
+    "receivingHand": ["2c", "2hscd"],
+    "PlayersTurn": 1,
+    "highId": 3,
+    "lowId": 0,
+    
+    "gameState": "initial",
+    "stateInformation": {
+        "cardsUp": ["","","",""],
+        "canSlask": true
+    },
+
+    "gameState": "card change",
+    "stateInformation": {
+        "cardTrownAmount": 2, // or false if not set alternative has this not been desided for this gamestate
+        "playersCardAmount": [5,3,3,0],
+        "isPlayerDone": [false,true,true,true],
+        "oneUp": {
+            "lastPlayer": 2,
+            "lastCard": "2c",
+            "lastChoice": true,
+            "activePlayer": 3,
+            "activeCard": "3h"
+        }
+    },
+
+    "gameState": "poker",
+    "stateInformation": {
+        "leadingPlayer": 3,
+        "loosingPlayer": [1,2],
+        "CanShowMore": [1,2,4],
+        "handCoinValue": 4,
+        "playerShownCards": {
+            "0": [],
+            "1": [],
+            "2": [],
+            "3": ["3h","6d"]
+        }
+    },
+
+    "gameState": "pokerEnding",
+    "stateInformation": {
+        "pokerWinning": 3,
+        "pokerLosing": 1,
+        "pokerAmount": 5
+    },
+
+    "gameState": "play",
+    "stateInformation": {
+        "cardsPlayed": {
+            "1": ["8s","2d"],
+            "2": ["2s","2d"],
+            "3": ["5s","2d"],
+            "4": ["8s","2d"],
+            "5": ["8s","2d"],
+            "6": ["8s","2d"],
+            "7": ["8s","2d"],
+            "8": ["8s","2d"]
+        },
+        "playedBy": {
+            "1": 1,
+            "2": 2,
+            "3": 3,
+            "4": 4,
+            "5": 3,
+            "6": 4,
+            "7": 1,
+            "8": 2
+        }
+    },
+
+    "gameState": "ending",
+    "stateInformation": {
+        "pokerWinning": 3,
+        "pokerLosing": 1,
+        "pokerAmount": 5,
+        "playWinning": 3,
+        "playLosing": 2,
+        "playAmount": 6
+    }
+}
