@@ -12,6 +12,13 @@ canvas.x = 0
 canvas.y = 0
 
 ///////// PARAMETERS ////////////
+const maxCardSelect = 5;
+const sendIfAccept = {
+    "gameId": 344,
+    "playerName": "",
+    "receivingPlayer": 2,
+}
+const gameState = "";
 
 ////////// test ////////////
 const card1 = new Card(0,0,0,1,2,'clubs')
@@ -25,7 +32,10 @@ var cards = [card1, card2, card3, card4, card5]
 const cardDown = new Card(0,0,0,0.02,0,'clubs')
 const cardsDown = [cardDown, cardDown, cardDown, cardDown, cardDown]
 const playAreaCards = [[card6], [card6,card7], [card6], [cardDown]]
+const cleanCard = new Card(0,0,0,0.6,3,'clubs')
 
+
+//////// initialization ///////
 const myPlayer = new Player(0, canvas, "boss");
 myPlayer.hand.cards = cards;
 myPlayer.playArea.cards = playAreaCards
@@ -38,11 +48,6 @@ north.playArea.cards = []
 const south = new Player(3, canvas, "boss");
 south.hand.cards = cardsDown;
 south.playArea.cards = playAreaCards
-
-const cleanCard = new Card(0,0,0,0.6,3,'clubs')
-
-
-
 
 //////// FUNCTIONS ///////////////
 
@@ -61,8 +66,19 @@ function animate() {
 window.addEventListener('mousemove', (event) => {
     var mousePos = { x: event.clientX, y: event.clientY };
     myPlayer.hand.updateHover(mousePos);
-
 });
+
+window.addEventListener("click", (event) => {
+    var mousePos = { x: event.clientX, y: event.clientY };
+    myPlayer.hand.updateSelect(mousePos);
+  });
+
+// Spacebar
+window.addEventListener('keydown', event => {
+    if (event.code === 'space') {
+
+    }
+})
 
 /////// LOAD //////////
 images[4][2].onload = function(){

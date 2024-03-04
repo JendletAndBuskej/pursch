@@ -18,7 +18,7 @@
 
     "gameState": "poker",
     "stateInformation": {
-        "showCards": ["3h","6d"] // false if check
+        "shownCards": ["3h","6d"] // this is the added cards
     },
 
     "gameState": "pokerEnding",
@@ -28,7 +28,7 @@
 
     "gameState": "play",
     "stateInformation": {
-        "playNow": ["8s","2d"]
+        "shownCards": ["8s","2d"]
     },
 
     "gameState": "ending",

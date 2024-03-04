@@ -36,12 +36,6 @@ export class Card {
         }
     }
 
-    updatePos(x, y, rotation) {
-        this.x = x;
-        this.y = y;
-        this.rotation = rotation;
-    }
-
     display(c, images) {
         var image = images[this.suit_index][this.value - 2];
         if (this.faceDown) {
@@ -67,6 +61,41 @@ export class Hand {
             this.scale = scale*position[2];
         }
         this.cardHover = []
+        this.cardSelected = []
+    }
+
+    updateHover(mousePos) {
+        for (var i=0; i<this.cards.length; i++) {
+            // image width = 512*this.scale
+            if (i < this.cards.length -1) {
+                var check2 = (mousePos.x<this.cards[i+1].x - 400*this.scale/2);
+            } 
+            else {
+                var check2 = (mousePos.x<this.cards[i].x + 400*this.scale/2);
+            }
+            const check1 = (mousePos.x>this.cards[i].x - 400*this.scale/2);
+            const check3 = (mousePos.y>this.position[1]);
+            const check4 = (mousePos.y<this.position[1] + this.position[3]);
+            this.cardHover[i] = check1 && check2 && check3 && check4;
+        }
+    }
+
+    updateSelect(mousePos) {
+        for (var i=0; i<this.cards.length; i++) {
+            // image width = 512*this.scale
+            if (i < this.cards.length -1) {
+                var check2 = (mousePos.x<this.cards[i+1].x - 400*this.scale/2);
+            } 
+            else {
+                var check2 = (mousePos.x<this.cards[i].x + 400*this.scale/2);
+            }
+            const check1 = (mousePos.x>this.cards[i].x - 400*this.scale/2);
+            const check3 = (mousePos.y>this.position[1]);
+            const check4 = (mousePos.y<this.position[1] + this.position[3]);
+            if (check1 && check2 && check3 && check4) {
+                this.cardSelected[i] = (this.cardSelected[i] == false);
+            }
+        }
     }
 
     updateHover(mousePos) {
@@ -125,8 +154,11 @@ export class Hand {
                 const scaleFactor = (card.x - middleX)/middleX;
                 card.angle = this.rotation + 20*scaleFactor;
                 card.y += 100*scaleFactor*scaleFactor;
-                if (this.cardHover[i]) {
-                    card.y -= 0.13*this.position[3];
+                if (this.cardSelected[i]) {
+                    card.y -= 0.15*this.position[3];
+                }
+                else if (this.cardHover[i]) {
+                    card.y -= 0.10*this.position[3];
                 }
                 card.scale = this.scale*1.3;
             }
@@ -385,6 +417,35 @@ export class Player {
         }
         this.hand.display(c, images);
     }
+
+    showCards() {
+        for (var i=0; i<this.hand.cards.length; i++) {
+            const cardHolder = [];
+            if (this.hand.cardSelected[i]) {
+                this.playArea.cards.push(this.hand.cards[i]);
+            }
+            else {
+                cardHolder.push(this.hand.cards[i]);
+            }
+        }
+        this.hand.cards = cardHolder;
+        return(cards2json(this.playArea.cards))
+    }
+
+    discardCards() {
+        for (var i=0; i<this.hand.cards.length; i++) {
+            const cardHolder = [];
+            const removedCards = []
+            if (this.hand.cardSelected[i]) {
+                cardHolder.push(this.hand.cards[i]);
+            }
+            else {
+                removedCards.push(this.hand.cards[i])
+            }
+        }
+        this.hand.cards = cardHolder;
+        return(cards2json(removedCards))
+    }
 }
 
 ////////////// Discard_pile //////////////////
@@ -416,4 +477,15 @@ export class DiscardPile {
             card.display(c, images);
         }
     }
+}
+
+function cards2json(cards) {
+    const returnList = [];
+    for (var i=0; i<cards.length; i++) {
+        const cardValue = cards.value
+        const cardSuit = cards.suit
+        const stringed = toString(cardValue) + cardSuit.charAt(0)
+        returnList.push(stringed)
+    }
+    return(returnList)
 }
